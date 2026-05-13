@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tecnología y Sociedad - Proyecto Filosofía</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --text: #1e293b;
+            --card: #ffffff;
+            --accent: #10b981;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+            background: linear-gradient(135deg, #1e293b, #334155);
+            color: white;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+
+        section {
+            background: var(--card);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        h1 { margin: 0; font-weight: 800; font-size: 2.2rem; }
+        h2 { color: var(--primary); border-left: 4px solid var(--primary); padding-left: 15px; margin-top: 30px; }
+
+        /* Estilos del Juego */
+        #game-container {
+            border: 2px solid var(--primary);
+            background: #f1f5f9;
+        }
+
+        .question { font-weight: 600; font-size: 1.2rem; margin-bottom: 20px; }
+        
+        .options {
+            display: grid;
+            gap: 10px;
+        }
+
+        .option-btn {
+            background: white;
+            border: 1px solid #cbd5e1;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .option-btn:hover {
+            background: #e2e8f0;
+            border-color: var(--primary);
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .correct { background: #dcfce7; color: #166534; border: 1px solid #10b981; }
+        .incorrect { background: #fee2e2; color: #991b1b; border: 1px solid #ef4444; }
+
+        .next-btn {
+            margin-top: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: none;
+        }
+
+        #score-board {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Tecnología y Sociedad</h1>
+        <p>Análisis Filosófico e Interactivo</p>
+    </header>
+
+    <section id="lectura">
+        <h2>La Definición de Tecnología y el Auge de la Tecnocracia</h2>
+        <p>Para comprender el mundo actual, es necesario remontarse a la raíz del término tecnología, el cual proviene de los vocablos griegos <i>tekne</i> (oficio) y <i>logos</i> (ciencia). En las últimas décadas, la sociedad se enfrenta a una "tecnocracia", un sistema donde las naciones se valoran por su éxito económico y técnico, desplazando los valores humanos.</p>
+        
+        <h2>Comunicación Global frente al Aislamiento Social</h2>
+        <p>El avance de las telecomunicaciones presenta una paradoja; si bien facilita la organización civil, también existe el riesgo de la "tecnofilia", donde la relación virtual reemplaza el contacto auténtico en los hogares.</p>
+        
+        <h2>Transformación Laboral y el Desafío de la Educación</h2>
+        <p>La inteligencia artificial ha mejorado la productividad, pero también ha provocado el desplazamiento de mano de obra humana. La brecha digital sigue siendo una preocupación crítica para la formación profesional.</p>
+
+        <h2>Salud, Bienestar y el Impacto Ambiental</h2>
+        <p>Se identifican patologías modernas vinculadas al abuso técnico, como la fatiga visual y el "pulgar de mensaje". Además, la alta demanda de dispositivos genera un impacto ambiental severo por residuos electrónicos.</p>
+    </section>
+
+    <section id="game-container">
+        <div id="quiz-intro">
+            <h2>🎮 ¡Pon a prueba tus conocimientos!</h2>
+            <p>Responde las preguntas basadas en la lectura anterior.</p>
+            <button class="next-btn" style="display:block" onclick="startQuiz()">Comenzar Juego</button>
+        </div>
+
+        <div id="quiz-content" style="display:none">
+            <div id="question-text" class="question"></div>
+            <div id="options-container" class="options"></div>
+            <div id="feedback-area" class="feedback"></div>
+            <button id="next-q-btn" class="next-btn" onclick="nextQuestion()">Siguiente Pregunta</button>
+        </div>
+
+        <div id="score-board"></div>
+    </section>
+</div>
+
+<script>
+    // Datos traídos de tu archivo proyecto filosofia.py
+    const questions = [
+        {
+            q: "¿Cómo ha cambiado la forma de comunicarnos en las reuniones familiares?",
+            options: ["A) Las personas hablan más cara a cara", "B) Pasan el tiempo mirando su celular", "C) No ha tenido impacto", "D) Ya no existen reuniones"],
+            correct: 1,
+            expl: "La mediación excesiva de pantallas disminuye las interacciones auténticas."
+        },
+        {
+            q: "¿Qué nombre recibe la desigualdad en el acceso a internet?",
+            options: ["A) Desconexión total", "B) Pobreza informativa", "C) Brecha digital", "D) Falta de señal"],
+            correct: 2,
+            expl: "La brecha digital genera desigualdad social y de oportunidades."
+        },
+        {
+            q: "¿Cuál es una ventaja principal de la tecnología en la salud?",
+            options: ["A) Ya no se necesitan médicos", "B) Telemedicina y diagnósticos remotos", "C) Los dispositivos curan solos", "D) Eliminación de registros"],
+            correct: 1,
+            expl: "La telemedicina permite conectar médicos y pacientes a pesar de las distancias."
+        }
+    ];
+
+    let currentQ = 0;
+    let score = 0;
+
+    function startQuiz() {
+        document.getElementById('quiz-intro').style.display = 'none';
+        document.getElementById('quiz-content').style.display = 'block';
+        showQuestion();
+    }
+
+    function showQuestion() {
+        const qData = questions[currentQ];
+        document.getElementById('question-text').innerText = qData.q;
+        const optionsDiv = document.getElementById('options-container');
+        optionsDiv.innerHTML = '';
+        document.getElementById('feedback-area').style.display = 'none';
+        document.getElementById('next-q-btn').style.display = 'none';
+
+        qData.options.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(index);
+            optionsDiv.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selected) {
+        const qData = questions[currentQ];
+        const feedback = document.getElementById('feedback-area');
+        feedback.style.display = 'block';
+        
+        if(selected === qData.correct) {
+            feedback.className = 'feedback correct';
+            feedback.innerHTML = `<strong>✅ ¡Correcto!</strong><br>${qData.expl}`;
+            score++;
+        } else {
+            feedback.className = 'feedback incorrect';
+            feedback.innerHTML = `<strong>❌ Incorrecto</strong><br>${qData.expl}`;
+        }
+        
+        document.getElementById('next-q-btn').style.display = 'block';
+        // Deshabilitar botones
+        const buttons = document.querySelectorAll('.option-btn');
+        buttons.forEach(b => b.disabled = true);
+    }
+
+    function nextQuestion() {
+        currentQ++;
+        if(currentQ < questions.length) {
+            showQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        document.getElementById('quiz-content').style.display = 'none';
+        const sb = document.getElementById('score-board');
+        sb.style.display = 'block';
+        sb.innerHTML = `Juego Terminado<br>Puntuación: ${score}/${questions.length}<br>
+        <small>${score === questions.length ? "¡Increíble! Entiendes todo perfectamente." : "¡Buen trabajo!"}</small>`;
+    }
+</script>
+
+</body>
+</html>
